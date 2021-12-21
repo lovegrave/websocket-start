@@ -1,5 +1,6 @@
 package com.dhls.util.websocket.handler;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dhls.util.websocket.entity.UserChannelEntity;
 import com.dhls.util.websocket.link.Global;
 import io.netty.buffer.ByteBuf;
@@ -11,6 +12,9 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -100,10 +104,15 @@ public class MyWebSocketServerHandler extends SimpleChannelInboundHandler<Object
         }
         String[] strings = request.split(",");
         TextWebSocketFrame tws = null;
+        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        Map<String,Object> map = new HashMap<>();
+        map.put("date",date);
         if(strings[0].equalsIgnoreCase("ping")){
-            tws = new TextWebSocketFrame("pong");
+            map.put("type","pong");
+            tws = new TextWebSocketFrame(JSONObject.toJSONString(map));
         }else{
-            tws = new TextWebSocketFrame(strings[0]);
+            map.put("type",strings[0]);
+            tws = new TextWebSocketFrame(JSONObject.toJSONString(map));
         }
 
           ctx.channel().writeAndFlush(tws);
